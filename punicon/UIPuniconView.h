@@ -9,11 +9,16 @@
 #import <UIKit/UIKit.h>
 
 @interface UIPuniconView : UIView {
+    CAShapeLayer *_shapeLayer;
+    CAShapeLayer *_arrowLayer;
+    CAShapeLayer *_highlightLayer;
 }
 
 @property BOOL bNeetDraw;
 @property CGPoint ptStartPoint;
 @property CGPoint ptEndPoint;
 @property BOOL bFirstDraw;
+
+@property (nonatomic, strong) UIColor *tintColor;
 
 @end
