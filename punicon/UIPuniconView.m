@@ -80,8 +80,8 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
     // Drawing code
     if (self.bNeetDraw) {
 //        [self drawLine];
-//        [self draw];
-        [self test];
+        [self draw];
+//        [self test];
     }
 }
 
@@ -103,24 +103,30 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
 
 - (void)draw
 {
-    // startpoint周りに円を書く
-    CGRect rect = CGRectMake(self.ptStartPoint.x - 10, self.ptStartPoint.y - 10, 20, 20);
-    
-    if (self.bFirstDraw) {
-        self.bFirstDraw = false;
-    }
-    else {
-        CGContextRef ctx = UIGraphicsGetCurrentContext();
-        CGContextAddEllipseInRect(ctx, rect);
-        CGContextSetFillColor(ctx, CGColorGetComponents([[UIColor blueColor] CGColor]));
-        CGContextFillPath(ctx);
-    }
-    
-    // endpoint周りに円を書く
-    
+    [self drawStartCircle];
+    [self drawEndCircle];
     
     // それをつなげる
+}
 
+- (void)drawStartCircle
+{
+    // startpoint周りに円を書く
+    CGRect rect = CGRectMake(self.ptStartPoint.x - 10, self.ptStartPoint.y - 10, 20, 20);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextAddEllipseInRect(ctx, rect);
+    CGContextSetFillColor(ctx, CGColorGetComponents([[UIColor colorWithRed:0 green:0 blue:0 alpha:0.2] CGColor]));
+    CGContextFillPath(ctx);
+}
+
+- (void)drawEndCircle
+{
+    // endpoint周りに円を書く
+    CGRect rect = CGRectMake(self.ptEndPoint.x - 5, self.ptEndPoint.y - 5, 10, 10);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextAddEllipseInRect(ctx, rect);
+    CGContextSetFillColor(ctx, CGColorGetComponents([[UIColor colorWithRed:0 green:0 blue:0 alpha:0.2] CGColor]));
+    CGContextFillPath(ctx);
 }
 
 - (void)test
@@ -151,9 +157,13 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
         }
     }
     
+    topOrigin = self.ptStartPoint;
+    bottomOrigin = self.ptEndPoint;
+    currentBottomRadius = currentBottomRadius / 2;
+    
     //Top semicircle
     CGPathAddArc(path, NULL, topOrigin.x, topOrigin.y, currentTopRadius, 0, M_PI, YES);
-//
+
 //    //Left curve
 //    CGPoint leftCp1 = CGPointMake(lerp((topOrigin.x - currentTopRadius), (bottomOrigin.x - currentBottomRadius), 0.1), lerp(topOrigin.y, bottomOrigin.y, 0.2));
 //    CGPoint leftCp2 = CGPointMake(lerp((topOrigin.x - currentTopRadius), (bottomOrigin.x - currentBottomRadius), 0.9), lerp(topOrigin.y, bottomOrigin.y, 0.2));
@@ -164,13 +174,13 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
     //Bottom semicircle
     CGPathAddArc(path, NULL, bottomOrigin.x, bottomOrigin.y, currentBottomRadius, M_PI, 0, YES);
     
-    //Right curve
-    CGPoint rightCp2 = CGPointMake(lerp((topOrigin.x + currentTopRadius), (bottomOrigin.x + currentBottomRadius), 0.1), lerp(topOrigin.y, bottomOrigin.y, 0.2));
-    CGPoint rightCp1 = CGPointMake(lerp((topOrigin.x + currentTopRadius), (bottomOrigin.x + currentBottomRadius), 0.9), lerp(topOrigin.y, bottomOrigin.y, 0.2));
-    CGPoint rightDestination = CGPointMake(topOrigin.x + currentTopRadius, topOrigin.y);
-    
-    CGPathAddCurveToPoint(path, NULL, rightCp1.x, rightCp1.y, rightCp2.x, rightCp2.y, rightDestination.x, rightDestination.y);
-    CGPathCloseSubpath(path);
+//    //Right curve
+//    CGPoint rightCp2 = CGPointMake(lerp((topOrigin.x + currentTopRadius), (bottomOrigin.x + currentBottomRadius), 0.1), lerp(topOrigin.y, bottomOrigin.y, 0.2));
+//    CGPoint rightCp1 = CGPointMake(lerp((topOrigin.x + currentTopRadius), (bottomOrigin.x + currentBottomRadius), 0.9), lerp(topOrigin.y, bottomOrigin.y, 0.2));
+//    CGPoint rightDestination = CGPointMake(topOrigin.x + currentTopRadius, topOrigin.y);
+//    
+//    CGPathAddCurveToPoint(path, NULL, rightCp1.x, rightCp1.y, rightCp2.x, rightCp2.y, rightDestination.x, rightDestination.y);
+//    CGPathCloseSubpath(path);
     
     // Set paths
     
