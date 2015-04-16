@@ -83,6 +83,9 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
         [self draw];
 //        [self test];
     }
+    else {
+        _shapeLayer.path = nil;
+    }
 }
 
 - (void)drawLine
@@ -103,10 +106,35 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
 
 - (void)draw
 {
-    [self drawStartCircle];
-    [self drawEndCircle];
+//    [self drawStartCircle];
+//    [self drawEndCircle];
     
-    // それをつなげる
+    CGMutablePathRef path = CGPathCreateMutable();
+    
+    // 開始点に大きめの円を描く
+    CGPathAddArc(path, NULL, self.ptStartPoint.x, self.ptStartPoint.y, 30, 0, M_PI*2, NO);
+//    CGPathMoveToPoint(path, NULL, self.ptStartPoint.x, self.ptStartPoint.y);
+
+    
+    // 終了点へ線を引く
+//    CGPathAddLineToPoint (path, NULL, self.ptStartPoint.x, self.ptStartPoint.y);
+//    CGPathAddLineToPoint (path, NULL, self.ptEndPoint.x, self.ptEndPoint.y);
+//    CGPathCloseSubpath(path);
+    
+    
+//    _shapeLayer.fillColor = [UIColor clearColor].CGColor;
+//    _shapeLayer.strokeColor = [UIColor redColor].CGColor;
+//    _shapeLayer.lineWidth = 3;
+//    _shapeLayer.shadowPath = path;
+    
+    // 終了点に小さめの円を描く
+    CGPathAddArc(path, NULL, self.ptEndPoint.x, self.ptEndPoint.y, 20, 0, M_PI*2, NO);
+    
+//    CGPathMoveToPoint(path, NULL, self.ptEndPoint.x, self.ptEndPoint.y);
+
+    _shapeLayer.path = path;
+
+    CGPathRelease(path);
 }
 
 - (void)drawStartCircle
@@ -162,30 +190,32 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
     currentBottomRadius = currentBottomRadius / 2;
     
     //Top semicircle
-    CGPathAddArc(path, NULL, topOrigin.x, topOrigin.y, currentTopRadius, 0, M_PI, YES);
+//    CGPathAddArc(path, NULL, topOrigin.x, topOrigin.y, currentTopRadius, 0, M_PI, YES);
+    
+    CGPathMoveToPoint(path, NULL, topOrigin.x, topOrigin.y);
 
-//    //Left curve
-//    CGPoint leftCp1 = CGPointMake(lerp((topOrigin.x - currentTopRadius), (bottomOrigin.x - currentBottomRadius), 0.1), lerp(topOrigin.y, bottomOrigin.y, 0.2));
-//    CGPoint leftCp2 = CGPointMake(lerp((topOrigin.x - currentTopRadius), (bottomOrigin.x - currentBottomRadius), 0.9), lerp(topOrigin.y, bottomOrigin.y, 0.2));
-//    CGPoint leftDestination = CGPointMake(bottomOrigin.x - currentBottomRadius, bottomOrigin.y);
-//    
-//    CGPathAddCurveToPoint(path, NULL, leftCp1.x, leftCp1.y, leftCp2.x, leftCp2.y, leftDestination.x, leftDestination.y);
+    //Left curve
+    CGPoint leftCp1 = CGPointMake(lerp((topOrigin.x - currentTopRadius), (bottomOrigin.x - currentBottomRadius), 0.1), lerp(topOrigin.y, bottomOrigin.y, 0.2));
+    CGPoint leftCp2 = CGPointMake(lerp((topOrigin.x - currentTopRadius), (bottomOrigin.x - currentBottomRadius), 0.9), lerp(topOrigin.y, bottomOrigin.y, 0.2));
+    CGPoint leftDestination = CGPointMake(bottomOrigin.x - currentBottomRadius, bottomOrigin.y);
+    
+    CGPathAddCurveToPoint(path, NULL, leftCp1.x, leftCp1.y, leftCp2.x, leftCp2.y, leftDestination.x, leftDestination.y);
     
     //Bottom semicircle
-    CGPathAddArc(path, NULL, bottomOrigin.x, bottomOrigin.y, currentBottomRadius, M_PI, 0, YES);
+//    CGPathAddArc(path, NULL, bottomOrigin.x, bottomOrigin.y, currentBottomRadius, M_PI, 0, YES);
     
-//    //Right curve
-//    CGPoint rightCp2 = CGPointMake(lerp((topOrigin.x + currentTopRadius), (bottomOrigin.x + currentBottomRadius), 0.1), lerp(topOrigin.y, bottomOrigin.y, 0.2));
-//    CGPoint rightCp1 = CGPointMake(lerp((topOrigin.x + currentTopRadius), (bottomOrigin.x + currentBottomRadius), 0.9), lerp(topOrigin.y, bottomOrigin.y, 0.2));
-//    CGPoint rightDestination = CGPointMake(topOrigin.x + currentTopRadius, topOrigin.y);
-//    
-//    CGPathAddCurveToPoint(path, NULL, rightCp1.x, rightCp1.y, rightCp2.x, rightCp2.y, rightDestination.x, rightDestination.y);
-//    CGPathCloseSubpath(path);
+    //Right curve
+    CGPoint rightCp2 = CGPointMake(lerp((topOrigin.x + currentTopRadius), (bottomOrigin.x + currentBottomRadius), 0.1), lerp(topOrigin.y, bottomOrigin.y, 0.2));
+    CGPoint rightCp1 = CGPointMake(lerp((topOrigin.x + currentTopRadius), (bottomOrigin.x + currentBottomRadius), 0.9), lerp(topOrigin.y, bottomOrigin.y, 0.2));
+    CGPoint rightDestination = CGPointMake(topOrigin.x + currentTopRadius, topOrigin.y);
+    
+    CGPathAddCurveToPoint(path, NULL, rightCp1.x, rightCp1.y, rightCp2.x, rightCp2.y, rightDestination.x, rightDestination.y);
+    CGPathCloseSubpath(path);
     
     // Set paths
     
     _shapeLayer.path = path;
-    _shapeLayer.shadowPath = path;
+//    _shapeLayer.shadowPath = path;
     
     // Add the arrow shape
     
@@ -207,13 +237,13 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
     
     // Add the highlight shape
     
-    CGMutablePathRef highlightPath = CGPathCreateMutable();
-    CGPathAddArc(highlightPath, NULL, topOrigin.x, topOrigin.y, currentTopRadius, 0, M_PI, YES);
-    CGPathAddArc(highlightPath, NULL, topOrigin.x, topOrigin.y + 1.25, currentTopRadius, M_PI, 0, NO);
-    
-    _highlightLayer.path = highlightPath;
-    [_highlightLayer setFillRule:kCAFillRuleNonZero];
-    CGPathRelease(highlightPath);
+//    CGMutablePathRef highlightPath = CGPathCreateMutable();
+//    CGPathAddArc(highlightPath, NULL, topOrigin.x, topOrigin.y, currentTopRadius, 0, M_PI, YES);
+//    CGPathAddArc(highlightPath, NULL, topOrigin.x, topOrigin.y + 1.25, currentTopRadius, M_PI, 0, NO);
+//    
+//    _highlightLayer.path = highlightPath;
+//    [_highlightLayer setFillRule:kCAFillRuleNonZero];
+//    CGPathRelease(highlightPath);
     
     CGPathRelease(path);
 }
