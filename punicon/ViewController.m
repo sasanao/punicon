@@ -37,6 +37,8 @@
     _puniconView.ptStartPoint = pt;
     _puniconView.ptEndPoint = pt;
     
+    [_puniconView.points addObject:[NSValue valueWithCGPoint:pt]];
+    
     [_puniconView setNeedsDisplay];
     
 //    /* 拡大・縮小 */

@@ -21,4 +21,6 @@
 
 @property (nonatomic, strong) UIColor *tintColor;
 
+@property NSMutableArray* points;
+
 @end

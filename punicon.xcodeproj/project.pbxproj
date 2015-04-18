@@ -15,6 +15,10 @@
 		55DD0A1C1ADCFD1F00608CA9 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 55DD0A1A1ADCFD1F00608CA9 /* LaunchScreen.xib */; };
 		55DD0A281ADCFD1F00608CA9 /* puniconTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 55DD0A271ADCFD1F00608CA9 /* puniconTests.m */; };
 		55DD0A331ADE2FB600608CA9 /* UIPuniconView.m in Sources */ = {isa = PBXBuildFile; fileRef = 55DD0A321ADE2FB600608CA9 /* UIPuniconView.m */; };
+		5C81B61C1AE20EE500E55049 /* analogue_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 5C81B6181AE20EE500E55049 /* analogue_bg.png */; };
+		5C81B61D1AE20EE500E55049 /* analogue_bg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5C81B6191AE20EE500E55049 /* analogue_bg@2x.png */; };
+		5C81B61E1AE20EE500E55049 /* analogue_handle.png in Resources */ = {isa = PBXBuildFile; fileRef = 5C81B61A1AE20EE500E55049 /* analogue_handle.png */; };
+		5C81B61F1AE20EE500E55049 /* analogue_handle@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5C81B61B1AE20EE500E55049 /* analogue_handle@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +47,10 @@
 		55DD0A271ADCFD1F00608CA9 /* puniconTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = puniconTests.m; sourceTree = "<group>"; };
 		55DD0A311ADE2FB600608CA9 /* UIPuniconView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIPuniconView.h; sourceTree = "<group>"; };
 		55DD0A321ADE2FB600608CA9 /* UIPuniconView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIPuniconView.m; sourceTree = "<group>"; };
+		5C81B6181AE20EE500E55049 /* analogue_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = analogue_bg.png; sourceTree = "<group>"; };
+		5C81B6191AE20EE500E55049 /* analogue_bg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "analogue_bg@2x.png"; sourceTree = "<group>"; };
+		5C81B61A1AE20EE500E55049 /* analogue_handle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = analogue_handle.png; sourceTree = "<group>"; };
+		5C81B61B1AE20EE500E55049 /* analogue_handle@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "analogue_handle@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +92,10 @@
 		55DD0A0A1ADCFD1F00608CA9 /* punicon */ = {
 			isa = PBXGroup;
 			children = (
+				5C81B6181AE20EE500E55049 /* analogue_bg.png */,
+				5C81B6191AE20EE500E55049 /* analogue_bg@2x.png */,
+				5C81B61A1AE20EE500E55049 /* analogue_handle.png */,
+				5C81B61B1AE20EE500E55049 /* analogue_handle@2x.png */,
 				55DD0A0F1ADCFD1F00608CA9 /* AppDelegate.h */,
 				55DD0A101ADCFD1F00608CA9 /* AppDelegate.m */,
 				55DD0A121ADCFD1F00608CA9 /* ViewController.h */,
@@ -205,8 +217,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				55DD0A171ADCFD1F00608CA9 /* Main.storyboard in Resources */,
+				5C81B61D1AE20EE500E55049 /* analogue_bg@2x.png in Resources */,
+				5C81B61F1AE20EE500E55049 /* analogue_handle@2x.png in Resources */,
 				55DD0A1C1ADCFD1F00608CA9 /* LaunchScreen.xib in Resources */,
+				5C81B61C1AE20EE500E55049 /* analogue_bg.png in Resources */,
 				55DD0A191ADCFD1F00608CA9 /* Images.xcassets in Resources */,
+				5C81B61E1AE20EE500E55049 /* analogue_handle.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -418,6 +434,7 @@
 				55DD0A2D1ADCFD1F00608CA9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		55DD0A2E1ADCFD1F00608CA9 /* Build configuration list for PBXNativeTarget "puniconTests" */ = {
 			isa = XCConfigurationList;
@@ -426,6 +443,7 @@
 				55DD0A301ADCFD1F00608CA9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -51,27 +51,29 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
 
 - (void)initialize
 {
-    _tintColor = [UIColor colorWithRed:155.0 / 255.0 green:162.0 / 255.0 blue:172.0 / 255.0 alpha:1.0];
-    
-    _shapeLayer = [CAShapeLayer layer];
-    _shapeLayer.fillColor = [_tintColor CGColor];
-    _shapeLayer.strokeColor = [[[UIColor darkGrayColor] colorWithAlphaComponent:0.5] CGColor];
-    _shapeLayer.lineWidth = 0.5;
-    _shapeLayer.shadowColor = [[UIColor blackColor] CGColor];
-    _shapeLayer.shadowOffset = CGSizeMake(0, 1);
-    _shapeLayer.shadowOpacity = 0.4;
-    _shapeLayer.shadowRadius = 0.5;
-    [self.layer addSublayer:_shapeLayer];
-    
-    _arrowLayer = [CAShapeLayer layer];
-    _arrowLayer.strokeColor = [[[UIColor darkGrayColor] colorWithAlphaComponent:0.5] CGColor];
-    _arrowLayer.lineWidth = 0.5;
-    _arrowLayer.fillColor = [[UIColor whiteColor] CGColor];
-    [_shapeLayer addSublayer:_arrowLayer];
-    
-    _highlightLayer = [CAShapeLayer layer];
-    _highlightLayer.fillColor = [[[UIColor whiteColor] colorWithAlphaComponent:0.2] CGColor];
-    [_shapeLayer addSublayer:_highlightLayer];
+//    _tintColor = [UIColor colorWithRed:155.0 / 255.0 green:162.0 / 255.0 blue:172.0 / 255.0 alpha:1.0];
+//    
+//    _shapeLayer = [CAShapeLayer layer];
+//    _shapeLayer.fillColor = [_tintColor CGColor];
+//    _shapeLayer.strokeColor = [[[UIColor darkGrayColor] colorWithAlphaComponent:0.5] CGColor];
+//    _shapeLayer.lineWidth = 0.5;
+//    _shapeLayer.shadowColor = [[UIColor blackColor] CGColor];
+//    _shapeLayer.shadowOffset = CGSizeMake(0, 1);
+//    _shapeLayer.shadowOpacity = 0.4;
+//    _shapeLayer.shadowRadius = 0.5;
+//    [self.layer addSublayer:_shapeLayer];
+//    
+//    _arrowLayer = [CAShapeLayer layer];
+//    _arrowLayer.strokeColor = [[[UIColor darkGrayColor] colorWithAlphaComponent:0.5] CGColor];
+//    _arrowLayer.lineWidth = 0.5;
+//    _arrowLayer.fillColor = [[UIColor whiteColor] CGColor];
+//    [_shapeLayer addSublayer:_arrowLayer];
+//    
+//    _highlightLayer = [CAShapeLayer layer];
+//    _highlightLayer.fillColor = [[[UIColor whiteColor] colorWithAlphaComponent:0.2] CGColor];
+//    [_shapeLayer addSublayer:_highlightLayer];
+//    
+//    self.points = [[NSMutableArray alloc]init];
 }
 
 // Only override drawRect: if you perform custom drawing.
@@ -79,29 +81,95 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
 - (void)drawRect:(CGRect)rect {
     // Drawing code
     if (self.bNeetDraw) {
-//        [self drawLine];
-        [self draw];
+//        [self draw];
 //        [self test];
+        [self drawBGImage];
+        [self drawHandleImage];
+        [self drawLine];
     }
     else {
         _shapeLayer.path = nil;
     }
 }
 
+- (void)drawHandleImage
+{
+    // startpoint周りに円を書く
+    NSInteger imageSize = 94;
+    CGRect rect = CGRectMake(self.ptEndPoint.x - (imageSize / 2), self.ptEndPoint.y - (imageSize / 2), imageSize, imageSize);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    UIImage* image = [UIImage imageNamed:@"analogue_handle"];
+
+//    CGContextTranslateCTM(ctx, 0, image.size.height);
+//    CGContextScaleCTM(ctx, 1.0, -1.0);
+    
+    CGContextSetAlpha(ctx, 0.1);
+    CGContextDrawImage(ctx, rect, [image CGImage]);
+}
+
+- (void)drawBGImage
+{
+    // startpoint周りに円を書く
+    NSInteger imageSize = 150;
+    CGRect rect = CGRectMake(self.ptStartPoint.x - (imageSize / 2), self.ptStartPoint.y - (imageSize / 2), imageSize, imageSize);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    UIImage* image = [UIImage imageNamed:@"analogue_bg"];
+    
+    CGContextSetAlpha(ctx, 0.1);
+    CGContextDrawImage(ctx, rect, [image CGImage]);
+}
+
+CGPoint midPoint(CGPoint p1, CGPoint p2)
+{
+    return CGPointMake((p1.x + p2.x) * 0.5, (p1.y + p2.y) * 0.5);
+}
+
 - (void)drawLine
 {
-    // UIBezierPath のインスタンス生成
-    UIBezierPath *line = [UIBezierPath bezierPath];
-    // 起点
-    [line moveToPoint:self.ptStartPoint];
-    // 帰着点
-    [line addLineToPoint:self.ptEndPoint];
-    // 色の設定
-    [[UIColor redColor] setStroke];
-    // ライン幅
-    line.lineWidth = 2;
-    // 描画
-    [line stroke];
+//    // UIBezierPath のインスタンス生成
+//    UIBezierPath *line = [UIBezierPath bezierPath];
+//    // 起点
+//    [line moveToPoint:self.ptStartPoint];
+//    // 帰着点
+//    [line addLineToPoint:self.ptEndPoint];
+//    // 色の設定
+//    [[UIColor redColor] setStroke];
+//    // ライン幅
+//    line.lineWidth = 2;
+//    // 描画
+//    [line stroke];
+    
+    // 開始から終了までを４分割
+    CGPoint pt2 = midPoint(self.ptStartPoint, self.ptEndPoint);
+    CGPoint pt1 = midPoint(self.ptStartPoint, pt2);
+    CGPoint pt3 = midPoint(pt2, self.ptEndPoint);
+    
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    // 最初は太め
+    CGContextMoveToPoint(ctx, self.ptStartPoint.x, self.ptStartPoint.y);
+    CGContextAddLineToPoint(ctx, pt1.x, pt1.y);
+    CGContextSetLineWidth(ctx, 50.0);
+    
+//    CGContextAddQuadCurveToPoint(ctx, self.ptStartPoint.x, self.ptStartPoint.y, pt1.x, pt1.y);
+    // 真ん中二つは普通
+//    CGContextSetLineWidth(ctx, 30.0);
+//    CGContextAddQuadCurveToPoint(ctx, pt1.x, pt1.y, pt2.x, pt2.y);
+//    CGContextAddQuadCurveToPoint(ctx, pt2.x, pt2.y, pt3.x, pt3.y);
+    // 最後は細め
+//    CGContextSetLineWidth(ctx, 10.0);
+//    CGContextAddQuadCurveToPoint(ctx, pt3.x, pt3.y, self.ptEndPoint.x, self.ptEndPoint.y);
+    
+    CGContextSetLineWidth(ctx, 20.0);
+    CGContextAddLineToPoint(ctx, self.ptEndPoint.x, self.ptEndPoint.y);
+    
+    CGContextSetLineCap(ctx, kCGLineCapRound);
+    CGContextSetRGBStrokeColor(ctx, 0.3, 0.3, 0.3, 0.3);
+    CGContextStrokePath(ctx);
+    
+    UIGraphicsEndImageContext();
 }
 
 - (void)draw
