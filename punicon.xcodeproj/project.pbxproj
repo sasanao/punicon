@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5570536C1AE8D9DE00A504F8 /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5570536B1AE8D9DE00A504F8 /* TestViewController.m */; };
 		55DD0A0E1ADCFD1F00608CA9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 55DD0A0D1ADCFD1F00608CA9 /* main.m */; };
 		55DD0A111ADCFD1F00608CA9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 55DD0A101ADCFD1F00608CA9 /* AppDelegate.m */; };
 		55DD0A141ADCFD1F00608CA9 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 55DD0A131ADCFD1F00608CA9 /* ViewController.m */; };
@@ -32,6 +33,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5570536A1AE8D9DE00A504F8 /* TestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestViewController.h; sourceTree = "<group>"; };
+		5570536B1AE8D9DE00A504F8 /* TestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestViewController.m; sourceTree = "<group>"; };
 		55DD0A081ADCFD1F00608CA9 /* punicon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = punicon.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		55DD0A0C1ADCFD1F00608CA9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		55DD0A0D1ADCFD1F00608CA9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -106,6 +109,8 @@
 				55DD0A0B1ADCFD1F00608CA9 /* Supporting Files */,
 				55DD0A311ADE2FB600608CA9 /* UIPuniconView.h */,
 				55DD0A321ADE2FB600608CA9 /* UIPuniconView.m */,
+				5570536A1AE8D9DE00A504F8 /* TestViewController.h */,
+				5570536B1AE8D9DE00A504F8 /* TestViewController.m */,
 			);
 			path = punicon;
 			sourceTree = "<group>";
@@ -244,6 +249,7 @@
 				55DD0A111ADCFD1F00608CA9 /* AppDelegate.m in Sources */,
 				55DD0A0E1ADCFD1F00608CA9 /* main.m in Sources */,
 				55DD0A331ADE2FB600608CA9 /* UIPuniconView.m in Sources */,
+				5570536C1AE8D9DE00A504F8 /* TestViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
