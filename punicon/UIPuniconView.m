@@ -8,27 +8,21 @@
 
 #import "UIPuniconView.h"
 
-#define kTotalViewHeight    400
-#define kOpenedViewHeight   44
-#define kMinTopPadding      9
-#define kMaxTopPadding      5
-#define kMinTopRadius       12.5
-#define kMaxTopRadius       16
-#define kMinBottomRadius    3
-#define kMaxBottomRadius    16
-#define kMinBottomPadding   4
-#define kMaxBottomPadding   6
-#define kMinArrowSize       2
-#define kMaxArrowSize       3
-#define kMinArrowRadius     5
-#define kMaxArrowRadius     7
-#define kMaxDistance        53
-
 @implementation UIPuniconView
 
-static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
+//角度→ラジアン変換
+#if !defined(RADIANS)
+#define RADIANS(D) (D * M_PI / 180)
+#endif
+
+//static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
+//{
+//    return a + (b - a) * p;
+//}
+
+CGPoint midPoint(CGPoint p1, CGPoint p2)
 {
-    return a + (b - a) * p;
+    return CGPointMake((p1.x + p2.x) * 0.5, (p1.y + p2.y) * 0.5);
 }
 
 - (id)initWithFrame:(CGRect)frame
@@ -51,269 +45,227 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
 
 - (void)initialize
 {
-//    _tintColor = [UIColor colorWithRed:155.0 / 255.0 green:162.0 / 255.0 blue:172.0 / 255.0 alpha:1.0];
-//    
-//    _shapeLayer = [CAShapeLayer layer];
-//    _shapeLayer.fillColor = [_tintColor CGColor];
-//    _shapeLayer.strokeColor = [[[UIColor darkGrayColor] colorWithAlphaComponent:0.5] CGColor];
-//    _shapeLayer.lineWidth = 0.5;
-//    _shapeLayer.shadowColor = [[UIColor blackColor] CGColor];
-//    _shapeLayer.shadowOffset = CGSizeMake(0, 1);
-//    _shapeLayer.shadowOpacity = 0.4;
-//    _shapeLayer.shadowRadius = 0.5;
-//    [self.layer addSublayer:_shapeLayer];
-//    
-//    _arrowLayer = [CAShapeLayer layer];
-//    _arrowLayer.strokeColor = [[[UIColor darkGrayColor] colorWithAlphaComponent:0.5] CGColor];
-//    _arrowLayer.lineWidth = 0.5;
-//    _arrowLayer.fillColor = [[UIColor whiteColor] CGColor];
-//    [_shapeLayer addSublayer:_arrowLayer];
-//    
-//    _highlightLayer = [CAShapeLayer layer];
-//    _highlightLayer.fillColor = [[[UIColor whiteColor] colorWithAlphaComponent:0.2] CGColor];
-//    [_shapeLayer addSublayer:_highlightLayer];
-//    
-//    self.points = [[NSMutableArray alloc]init];
+    _sublayer1 = [CAShapeLayer layer];
+    _sublayer1.fillColor = nil;
+    _sublayer1.opacity = 1.0;
+    _sublayer1.strokeColor = [UIColor redColor].CGColor;
+    //アニメーションの中心点を設定　0.5,0.5なら中心を起点として膨張・縮小する。
+//    _sublayer1.anchorPoint = CGPointMake(0.5,0.5);
+//    _sublayer1.bounds = CGRectMake(0, 0, 50, 50);
+//    _sublayer1.contentsRect = CGRectMake(0, 0, 1.0, 1.0);
+    [self.layer addSublayer:_sublayer1];
+    
+    _sublayer2 = [CAShapeLayer layer];
+    _sublayer2.fillColor = nil;
+    _sublayer2.opacity = 1.0;
+    _sublayer2.strokeColor = [UIColor redColor].CGColor;
+    [self.layer addSublayer:_sublayer2];
+    
+    _sublayer3 = [CAShapeLayer layer];
+    _sublayer3.fillColor = nil;
+    _sublayer3.opacity = 1.0;
+    _sublayer3.strokeColor = [UIColor orangeColor].CGColor;
+    [self.layer addSublayer:_sublayer3];
 }
 
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
-    if (self.bNeetDraw) {
-//        [self draw];
-//        [self test];
-        [self drawBGImage];
-        [self drawHandleImage];
-        [self drawLine];
-    }
-    else {
-        _shapeLayer.path = nil;
-    }
-}
+//// Only override drawRect: if you perform custom drawing.
+//// An empty implementation adversely affects performance during animation.
+//- (void)drawRect:(CGRect)rect {
+//    // Drawing code
+//}
 
-- (void)drawHandleImage
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    // startpoint周りに円を書く
-    NSInteger imageSize = 94;
-    CGRect rect = CGRectMake(self.ptEndPoint.x - (imageSize / 2), self.ptEndPoint.y - (imageSize / 2), imageSize, imageSize);
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    NSArray* allTouches = [event.allTouches allObjects];
+    UITouch *touch = [allTouches objectAtIndex:0];
+    CGPoint pt = [touch locationInView:self];
     
-    UIImage* image = [UIImage imageNamed:@"analogue_handle"];
+    self.ptStartPoint = pt;
+    self.ptEndPoint = pt;
+    
+    [CATransaction begin];
+    [CATransaction setValue:(id)kCFBooleanTrue
+                     forKey:kCATransactionDisableActions];
 
-//    CGContextTranslateCTM(ctx, 0, image.size.height);
-//    CGContextScaleCTM(ctx, 1.0, -1.0);
-    
-    CGContextSetAlpha(ctx, 0.1);
-    CGContextDrawImage(ctx, rect, [image CGImage]);
+//    [self drawStartCircle];
+    [self drawStartImage];
+//    [self doBeatAnimation];
+    //[self setNeedsDisplay];
+
+    [CATransaction commit];
 }
 
-- (void)drawBGImage
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    NSLog(@"touchesMoved");
+    
+    NSArray* allTouches = [event.allTouches allObjects];
+    UITouch *touch = [allTouches objectAtIndex:0];
+    CGPoint pt = [touch locationInView:self];
+    
+    self.ptEndPoint = pt;
+    
+    [CATransaction begin];
+    [CATransaction setValue:(id)kCFBooleanTrue
+                     forKey:kCATransactionDisableActions];
+    
+//    [self drawEndCircle];
+    [self drawLine];
+    
+    [self drawEndImage];
+
+    [CATransaction commit];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    NSLog(@"touchesEnded");
+
+    _sublayer1.path = nil;
+    _sublayer1.contents = nil;
+    _sublayer2.path = nil;
+    _sublayer2.contents = nil;
+    _sublayer3.path = nil;
+    _sublayer3.contents = nil;
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    NSLog(@"touchesCancelled");
+
+    _sublayer1.path = nil;
+    _sublayer1.contents = nil;
+    _sublayer2.path = nil;
+    _sublayer2.contents = nil;
+    _sublayer3.path = nil;
+    _sublayer3.contents = nil;
+}
+
+- (void)drawStartImage
 {
     // startpoint周りに円を書く
     NSInteger imageSize = 150;
     CGRect rect = CGRectMake(self.ptStartPoint.x - (imageSize / 2), self.ptStartPoint.y - (imageSize / 2), imageSize, imageSize);
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
+//    CGContextRef ctx = UIGraphicsGetCurrentContext();
+//    
+//    UIImage* image = [UIImage imageNamed:@"analogue_bg"];
+//    
+//    CGContextSetAlpha(ctx, 0.1);
+//    CGContextDrawImage(ctx, rect, [image CGImage]);
     
-    UIImage* image = [UIImage imageNamed:@"analogue_bg"];
-    
-    CGContextSetAlpha(ctx, 0.1);
-    CGContextDrawImage(ctx, rect, [image CGImage]);
+    _sublayer1.frame = rect;
+    _sublayer1.contents = (id)[UIImage imageNamed:@"analogue_bg"].CGImage;
 }
 
-CGPoint midPoint(CGPoint p1, CGPoint p2)
+- (void)drawEndImage
 {
-    return CGPointMake((p1.x + p2.x) * 0.5, (p1.y + p2.y) * 0.5);
-}
+    // startpoint周りに円を書く
+    NSInteger imageSize = 94;
+    CGRect rect = CGRectMake(self.ptEndPoint.x - (imageSize / 2), self.ptEndPoint.y - (imageSize / 2), imageSize, imageSize);
+//    CGContextRef ctx = UIGraphicsGetCurrentContext();
+//    
+//    UIImage* image = [UIImage imageNamed:@"analogue_handle"];
+//    
+//    CGContextSetAlpha(ctx, 0.1);
+//    CGContextDrawImage(ctx, rect, [image CGImage]);
 
-- (void)drawLine
-{
-//    // UIBezierPath のインスタンス生成
-//    UIBezierPath *line = [UIBezierPath bezierPath];
-//    // 起点
-//    [line moveToPoint:self.ptStartPoint];
-//    // 帰着点
-//    [line addLineToPoint:self.ptEndPoint];
-//    // 色の設定
-//    [[UIColor redColor] setStroke];
-//    // ライン幅
-//    line.lineWidth = 2;
-//    // 描画
-//    [line stroke];
-    
-    // 開始から終了までを４分割
-    CGPoint pt2 = midPoint(self.ptStartPoint, self.ptEndPoint);
-    CGPoint pt1 = midPoint(self.ptStartPoint, pt2);
-    CGPoint pt3 = midPoint(pt2, self.ptEndPoint);
-    
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    
-    // 最初は太め
-    CGContextMoveToPoint(ctx, self.ptStartPoint.x, self.ptStartPoint.y);
-    CGContextAddLineToPoint(ctx, pt1.x, pt1.y);
-    CGContextSetLineWidth(ctx, 50.0);
-    
-//    CGContextAddQuadCurveToPoint(ctx, self.ptStartPoint.x, self.ptStartPoint.y, pt1.x, pt1.y);
-    // 真ん中二つは普通
-//    CGContextSetLineWidth(ctx, 30.0);
-//    CGContextAddQuadCurveToPoint(ctx, pt1.x, pt1.y, pt2.x, pt2.y);
-//    CGContextAddQuadCurveToPoint(ctx, pt2.x, pt2.y, pt3.x, pt3.y);
-    // 最後は細め
-//    CGContextSetLineWidth(ctx, 10.0);
-//    CGContextAddQuadCurveToPoint(ctx, pt3.x, pt3.y, self.ptEndPoint.x, self.ptEndPoint.y);
-    
-    CGContextSetLineWidth(ctx, 20.0);
-    CGContextAddLineToPoint(ctx, self.ptEndPoint.x, self.ptEndPoint.y);
-    
-    CGContextSetLineCap(ctx, kCGLineCapRound);
-    CGContextSetRGBStrokeColor(ctx, 0.3, 0.3, 0.3, 0.3);
-    CGContextStrokePath(ctx);
-    
-    UIGraphicsEndImageContext();
-}
-
-- (void)draw
-{
-//    [self drawStartCircle];
-//    [self drawEndCircle];
-    
-    CGMutablePathRef path = CGPathCreateMutable();
-    
-    // 開始点に大きめの円を描く
-    CGPathAddArc(path, NULL, self.ptStartPoint.x, self.ptStartPoint.y, 30, 0, M_PI*2, NO);
-//    CGPathMoveToPoint(path, NULL, self.ptStartPoint.x, self.ptStartPoint.y);
-
-    
-    // 終了点へ線を引く
-//    CGPathAddLineToPoint (path, NULL, self.ptStartPoint.x, self.ptStartPoint.y);
-//    CGPathAddLineToPoint (path, NULL, self.ptEndPoint.x, self.ptEndPoint.y);
-//    CGPathCloseSubpath(path);
-    
-    
-//    _shapeLayer.fillColor = [UIColor clearColor].CGColor;
-//    _shapeLayer.strokeColor = [UIColor redColor].CGColor;
-//    _shapeLayer.lineWidth = 3;
-//    _shapeLayer.shadowPath = path;
-    
-    // 終了点に小さめの円を描く
-    CGPathAddArc(path, NULL, self.ptEndPoint.x, self.ptEndPoint.y, 20, 0, M_PI*2, NO);
-    
-//    CGPathMoveToPoint(path, NULL, self.ptEndPoint.x, self.ptEndPoint.y);
-
-    _shapeLayer.path = path;
-
-    CGPathRelease(path);
+    _sublayer2.frame = rect;
+    _sublayer2.contents = (id)[UIImage imageNamed:@"analogue_handle"].CGImage;
 }
 
 - (void)drawStartCircle
 {
     // startpoint周りに円を書く
-    CGRect rect = CGRectMake(self.ptStartPoint.x - 10, self.ptStartPoint.y - 10, 20, 20);
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGContextAddEllipseInRect(ctx, rect);
-    CGContextSetFillColor(ctx, CGColorGetComponents([[UIColor colorWithRed:0 green:0 blue:0 alpha:0.2] CGColor]));
-    CGContextFillPath(ctx);
+    UIBezierPath *bezierPath = [UIBezierPath bezierPath];
+    [bezierPath addArcWithCenter:self.ptStartPoint radius:50 startAngle:0 endAngle:2 * M_PI clockwise:YES];
+    _sublayer1.path=bezierPath.CGPath;
 }
 
 - (void)drawEndCircle
 {
-    // endpoint周りに円を書く
-    CGRect rect = CGRectMake(self.ptEndPoint.x - 5, self.ptEndPoint.y - 5, 10, 10);
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGContextAddEllipseInRect(ctx, rect);
-    CGContextSetFillColor(ctx, CGColorGetComponents([[UIColor colorWithRed:0 green:0 blue:0 alpha:0.2] CGColor]));
-    CGContextFillPath(ctx);
+    UIBezierPath *bezierPath = [UIBezierPath bezierPath];
+    [bezierPath addArcWithCenter:self.ptEndPoint radius:20 startAngle:0 endAngle:2 * M_PI clockwise:YES];
+    _sublayer2.path=bezierPath.CGPath;
 }
 
-- (void)test
+- (void)drawLine
 {
-    CGFloat offset = 0.0f;
+    UIBezierPath *linePath=[UIBezierPath bezierPath];
+    
+    // circle1からみた2点の角度
+    float x1 = _ptEndPoint.x - _ptStartPoint.x;
+    float y1 = _ptEndPoint.y - _ptStartPoint.y;
+    float radian1 = atan2f(y1, x1);
+    
+    // circle2からみた2点の角度
+    float x2 = _ptStartPoint.x - _ptEndPoint.x;
+    float y2 = _ptStartPoint.y - _ptEndPoint.y;
+    float radian2 = atan2f(y2, x2);
+    
+    // circle1の90度曲げた角度、半径分はなれた位置
+    float radian1_right = radian1 - RADIANS(90);
+    float x1_right = cosf(radian1_right) * 50;
+    float y1_right = sinf(radian1_right) * 50;
+    //    [linePath addLineToPoint:CGPointMake(center.x + x2, center.y + y2)];
+    
+    // circle2の90度曲げた角度、半径分はなれた位置
+    float radian2_left = radian2 - RADIANS(90);
+    float x2_left = cosf(radian2_left) * 10;
+    float y2_left = sinf(radian2_left) * 10;
+    
+    // circle1の-90度曲げた角度、半径分はなれた位置
+    float radian1_left = radian1 - RADIANS(-90);
+    float x1_left = cosf(radian1_left) * 50;
+    float y1_left = sinf(radian1_left) * 50;
+    
+    // circle2の-90度曲げた角度、半径分はなれた位置
+    float radian2_right = radian2 - RADIANS(-90);
+    float x2_right = cosf(radian2_right) * 10;
+    float y2_right = sinf(radian2_right) * 10;
+    
+    // 中間ポイント
+    CGPoint middlePoint = midPoint(_ptStartPoint, _ptEndPoint);
+    
+    // 右側スタート地点
+    [linePath moveToPoint: CGPointMake(_ptStartPoint.x + x1_right, _ptStartPoint.y + y1_right)];
 
-    CGMutablePathRef path = CGPathCreateMutable();
+    // 右側の線
+    [linePath addQuadCurveToPoint:CGPointMake(_ptEndPoint.x + x2_right, _ptEndPoint.y + y2_right) controlPoint:middlePoint];
     
-    //Calculate some useful points and values
-    CGFloat verticalShift = MAX(0, -((kMaxTopRadius + kMaxBottomRadius + kMaxTopPadding + kMaxBottomPadding) + offset));
-    CGFloat distance = MIN(kMaxDistance, fabs(verticalShift));
-    CGFloat percentage = 1 - (distance / kMaxDistance);
+    //    NSString* radianLog = [NSString stringWithFormat:@"radian = %f, x = %f, y = %f", radian, x2, y2];
+    //    [textView setText:radianLog];
     
-    CGFloat currentTopPadding = lerp(kMinTopPadding, kMaxTopPadding, percentage);
-    CGFloat currentTopRadius = lerp(kMinTopRadius, kMaxTopRadius, percentage);
-    CGFloat currentBottomRadius = lerp(kMinBottomRadius, kMaxBottomRadius, percentage);
-    CGFloat currentBottomPadding =  lerp(kMinBottomPadding, kMaxBottomPadding, percentage);
+    // 左側スタート地点
+    [linePath moveToPoint: CGPointMake(_ptStartPoint.x + x1_left, _ptStartPoint.y + y1_left)];
     
-    CGPoint bottomOrigin = CGPointMake(floor(self.bounds.size.width / 2), self.bounds.size.height - currentBottomPadding -currentBottomRadius);
-    CGPoint topOrigin = CGPointZero;
-    if (distance == 0) {
-        topOrigin = CGPointMake(floor(self.bounds.size.width / 2), bottomOrigin.y);
-    } else {
-        topOrigin = CGPointMake(floor(self.bounds.size.width / 2), self.bounds.size.height + offset + currentTopPadding + currentTopRadius);
-        if (percentage == 0) {
-            bottomOrigin.y -= (fabs(verticalShift) - kMaxDistance);
-//            triggered = YES;
-        }
-    }
+    // 左側の線
+    [linePath addQuadCurveToPoint:CGPointMake(_ptEndPoint.x + x2_left, _ptEndPoint.y + y2_left) controlPoint:middlePoint];
     
-    topOrigin = self.ptStartPoint;
-    bottomOrigin = self.ptEndPoint;
-    currentBottomRadius = currentBottomRadius / 2;
-    
-    //Top semicircle
-//    CGPathAddArc(path, NULL, topOrigin.x, topOrigin.y, currentTopRadius, 0, M_PI, YES);
-    
-    CGPathMoveToPoint(path, NULL, topOrigin.x, topOrigin.y);
+    _sublayer3.path=linePath.CGPath;
+}
 
-    //Left curve
-    CGPoint leftCp1 = CGPointMake(lerp((topOrigin.x - currentTopRadius), (bottomOrigin.x - currentBottomRadius), 0.1), lerp(topOrigin.y, bottomOrigin.y, 0.2));
-    CGPoint leftCp2 = CGPointMake(lerp((topOrigin.x - currentTopRadius), (bottomOrigin.x - currentBottomRadius), 0.9), lerp(topOrigin.y, bottomOrigin.y, 0.2));
-    CGPoint leftDestination = CGPointMake(bottomOrigin.x - currentBottomRadius, bottomOrigin.y);
+- (void)doBeatAnimation
+{
+    //座標でなく、形をアニメーションすることを示す　transformのかわりにpositionで移動系のアニメーション
+    CABasicAnimation* prompt = [CABasicAnimation animationWithKeyPath:@"transform"];
     
-    CGPathAddCurveToPoint(path, NULL, leftCp1.x, leftCp1.y, leftCp2.x, leftCp2.y, leftDestination.x, leftDestination.y);
+    //アニメーションにかかる時間(秒)
+    prompt.duration = 0.1;
+    //膨張させる割合　前からx,y,z軸　普通に使う場合はzは1.0としておき、 1.1,1.1,1.0のように使う
+    prompt.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeScale(1.1, 1.1, 1.0)];
     
-    //Bottom semicircle
-//    CGPathAddArc(path, NULL, bottomOrigin.x, bottomOrigin.y, currentBottomRadius, M_PI, 0, YES);
+//    prompt.duration = 0.1;
+//    prompt.fromValue = [NSValue valueWithCATransform3D:
+//                        CATransform3DMakeRotation(-0.05, 0.0, 0.0, 1.0)];
+//    prompt.toValue = [NSValue valueWithCATransform3D:
+//                      CATransform3DMakeRotation(0.05, 0.0, 0.0, 1.0)];
     
-    //Right curve
-    CGPoint rightCp2 = CGPointMake(lerp((topOrigin.x + currentTopRadius), (bottomOrigin.x + currentBottomRadius), 0.1), lerp(topOrigin.y, bottomOrigin.y, 0.2));
-    CGPoint rightCp1 = CGPointMake(lerp((topOrigin.x + currentTopRadius), (bottomOrigin.x + currentBottomRadius), 0.9), lerp(topOrigin.y, bottomOrigin.y, 0.2));
-    CGPoint rightDestination = CGPointMake(topOrigin.x + currentTopRadius, topOrigin.y);
-    
-    CGPathAddCurveToPoint(path, NULL, rightCp1.x, rightCp1.y, rightCp2.x, rightCp2.y, rightDestination.x, rightDestination.y);
-    CGPathCloseSubpath(path);
-    
-    // Set paths
-    
-    _shapeLayer.path = path;
-//    _shapeLayer.shadowPath = path;
-    
-    // Add the arrow shape
-    
-//    CGFloat currentArrowSize = lerp(kMinArrowSize, kMaxArrowSize, percentage);
-//    CGFloat currentArrowRadius = lerp(kMinArrowRadius, kMaxArrowRadius, percentage);
-//    CGFloat arrowBigRadius = currentArrowRadius + (currentArrowSize / 2);
-//    CGFloat arrowSmallRadius = currentArrowRadius - (currentArrowSize / 2);
-//    CGMutablePathRef arrowPath = CGPathCreateMutable();
-//    CGPathAddArc(arrowPath, NULL, topOrigin.x, topOrigin.y, arrowBigRadius, 0, 3 * M_PI_2, NO);
-//    CGPathAddLineToPoint(arrowPath, NULL, topOrigin.x, topOrigin.y - arrowBigRadius - currentArrowSize);
-//    CGPathAddLineToPoint(arrowPath, NULL, topOrigin.x + (2 * currentArrowSize), topOrigin.y - arrowBigRadius + (currentArrowSize / 2));
-//    CGPathAddLineToPoint(arrowPath, NULL, topOrigin.x, topOrigin.y - arrowBigRadius + (2 * currentArrowSize));
-//    CGPathAddLineToPoint(arrowPath, NULL, topOrigin.x, topOrigin.y - arrowBigRadius + currentArrowSize);
-//    CGPathAddArc(arrowPath, NULL, topOrigin.x, topOrigin.y, arrowSmallRadius, 3 * M_PI_2, 0, YES);
-//    CGPathCloseSubpath(arrowPath);
-//    _arrowLayer.path = arrowPath;
-//    [_arrowLayer setFillRule:kCAFillRuleEvenOdd];
-//    CGPathRelease(arrowPath);
-    
-    // Add the highlight shape
-    
-//    CGMutablePathRef highlightPath = CGPathCreateMutable();
-//    CGPathAddArc(highlightPath, NULL, topOrigin.x, topOrigin.y, currentTopRadius, 0, M_PI, YES);
-//    CGPathAddArc(highlightPath, NULL, topOrigin.x, topOrigin.y + 1.25, currentTopRadius, M_PI, 0, NO);
-//    
-//    _highlightLayer.path = highlightPath;
-//    [_highlightLayer setFillRule:kCAFillRuleNonZero];
-//    CGPathRelease(highlightPath);
-    
-    CGPathRelease(path);
+    //繰り返し回数　HUGE_VALFで永久に繰り返すこともできる
+    prompt.repeatCount = 1;
+    //アニメーションの設定　YESだと鼓動　NOだと1.0から1.1になるところのみ描画(1.1から1.0に縮むところは描画しない)
+    prompt.autoreverses = YES;
+    //アニメーションさせる　キーはよくわからないです
+    [_sublayer1 addAnimation:prompt forKey:@"blink"];
 }
 
 @end
