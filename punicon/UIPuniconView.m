@@ -15,6 +15,8 @@
 #define RADIANS(D) (D * M_PI / 180)
 #endif
 
+#define NORMALIZED 200
+
 //static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p)
 //{
 //    return a + (b - a) * p;
@@ -62,9 +64,9 @@ CGPoint midPoint(CGPoint p1, CGPoint p2)
     [self.layer addSublayer:_sublayer2];
     
     _sublayer3 = [CAShapeLayer layer];
-    _sublayer3.fillColor = nil;
-    _sublayer3.opacity = 1.0;
-    _sublayer3.strokeColor = [UIColor orangeColor].CGColor;
+    _sublayer3.fillColor = [UIColor lightGrayColor].CGColor;
+    _sublayer3.opacity = 0.2;
+    _sublayer3.strokeColor = [UIColor lightGrayColor].CGColor;
     [self.layer addSublayer:_sublayer3];
 }
 
@@ -90,15 +92,14 @@ CGPoint midPoint(CGPoint p1, CGPoint p2)
 //    [self drawStartCircle];
     [self drawStartImage];
 //    [self doBeatAnimation];
-    //[self setNeedsDisplay];
+    [self drawLine];
+    [self drawEndImage];
 
     [CATransaction commit];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    NSLog(@"touchesMoved");
-    
     NSArray* allTouches = [event.allTouches allObjects];
     UITouch *touch = [allTouches objectAtIndex:0];
     CGPoint pt = [touch locationInView:self];
@@ -111,40 +112,93 @@ CGPoint midPoint(CGPoint p1, CGPoint p2)
     
 //    [self drawEndCircle];
     [self drawLine];
-    
     [self drawEndImage];
 
     [CATransaction commit];
+    
+    CGFloat normalisedX = ((self.ptEndPoint.x - self.ptStartPoint.x) / NORMALIZED);
+    CGFloat normalisedY = ((self.ptEndPoint.y - self.ptStartPoint.y) / NORMALIZED);
+    
+    if (normalisedX > 1.0)
+    {
+        normalisedX = 1.0;
+    }
+    else if (normalisedX < -1.0)
+    {
+        normalisedX = -1.0;
+    }
+    
+    if (normalisedY > 1.0)
+    {
+        normalisedY = 1.0;
+    }
+    else if (normalisedY < -1.0)
+    {
+        normalisedY = -1.0;
+    }
+    
+//    if (self.invertedYAxis)
+//    {
+//        normalisedY *= -1;
+//    }
+    
+    _xValue = normalisedX;
+    _yValue = normalisedY;
+    
+    if ([self.delegate respondsToSelector:@selector(puniconViewDidChangeValue:)])
+    {
+        [self.delegate puniconViewDidChangeValue:self];
+    }
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     NSLog(@"touchesEnded");
 
-    _sublayer1.path = nil;
-    _sublayer1.contents = nil;
-    _sublayer2.path = nil;
-    _sublayer2.contents = nil;
+    _xValue = 0.0;
+    _yValue = 0.0;
+
+    [self drawEndImage2];
+
+//    _sublayer1.path = nil;
+//    _sublayer1.contents = nil;
+//    _sublayer2.path = nil;
+//    _sublayer2.contents = nil;
     _sublayer3.path = nil;
     _sublayer3.contents = nil;
+    
+    if ([self.delegate respondsToSelector:@selector(puniconViewDidChangeValue:)])
+    {
+        [self.delegate puniconViewDidChangeValue:self];
+    }
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     NSLog(@"touchesCancelled");
+    
+    _xValue = 0.0;
+    _yValue = 0.0;
 
-    _sublayer1.path = nil;
-    _sublayer1.contents = nil;
-    _sublayer2.path = nil;
-    _sublayer2.contents = nil;
+    [self drawEndImage2];
+    
+//    _sublayer1.path = nil;
+//    _sublayer1.contents = nil;
+//    _sublayer2.path = nil;
+//    _sublayer2.contents = nil;
     _sublayer3.path = nil;
     _sublayer3.contents = nil;
+    
+    if ([self.delegate respondsToSelector:@selector(puniconViewDidChangeValue:)])
+    {
+        [self.delegate puniconViewDidChangeValue:self];
+    }
 }
 
 - (void)drawStartImage
 {
     // startpoint周りに円を書く
-    NSInteger imageSize = 150;
+    NSInteger imageSize = 100;
     CGRect rect = CGRectMake(self.ptStartPoint.x - (imageSize / 2), self.ptStartPoint.y - (imageSize / 2), imageSize, imageSize);
 //    CGContextRef ctx = UIGraphicsGetCurrentContext();
 //    
@@ -160,15 +214,19 @@ CGPoint midPoint(CGPoint p1, CGPoint p2)
 - (void)drawEndImage
 {
     // startpoint周りに円を書く
-    NSInteger imageSize = 94;
+    NSInteger imageSize = 40;
     CGRect rect = CGRectMake(self.ptEndPoint.x - (imageSize / 2), self.ptEndPoint.y - (imageSize / 2), imageSize, imageSize);
-//    CGContextRef ctx = UIGraphicsGetCurrentContext();
-//    
-//    UIImage* image = [UIImage imageNamed:@"analogue_handle"];
-//    
-//    CGContextSetAlpha(ctx, 0.1);
-//    CGContextDrawImage(ctx, rect, [image CGImage]);
 
+    _sublayer2.frame = rect;
+    _sublayer2.contents = (id)[UIImage imageNamed:@"analogue_handle"].CGImage;
+}
+
+- (void)drawEndImage2
+{
+    // startpoint周りに円を書く
+    NSInteger imageSize = 40;
+    CGRect rect = CGRectMake(self.ptStartPoint.x - (imageSize / 2), self.ptStartPoint.y - (imageSize / 2), imageSize, imageSize);
+    
     _sublayer2.frame = rect;
     _sublayer2.contents = (id)[UIImage imageNamed:@"analogue_handle"].CGImage;
 }
@@ -235,11 +293,14 @@ CGPoint midPoint(CGPoint p1, CGPoint p2)
     //    NSString* radianLog = [NSString stringWithFormat:@"radian = %f, x = %f, y = %f", radian, x2, y2];
     //    [textView setText:radianLog];
     
-    // 左側スタート地点
-    [linePath moveToPoint: CGPointMake(_ptStartPoint.x + x1_left, _ptStartPoint.y + y1_left)];
-    
     // 左側の線
-    [linePath addQuadCurveToPoint:CGPointMake(_ptEndPoint.x + x2_left, _ptEndPoint.y + y2_left) controlPoint:middlePoint];
+    [linePath addLineToPoint:CGPointMake(_ptEndPoint.x + x2_left, _ptEndPoint.y + y2_left) ];
+    
+    // 左側スタート地点
+//    [linePath moveToPoint: CGPointMake(_ptStartPoint.x + x1_left, _ptStartPoint.y + y1_left)];
+    [linePath addQuadCurveToPoint:CGPointMake(_ptStartPoint.x + x1_left, _ptStartPoint.y + y1_left) controlPoint:middlePoint];
+    
+    [linePath addLineToPoint:CGPointMake(_ptStartPoint.x + x1_right, _ptStartPoint.y + y1_right) ];
     
     _sublayer3.path=linePath.CGPath;
 }

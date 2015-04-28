@@ -9,8 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "UIPuniconView.h"
 
-@interface ViewController : UIViewController {
+@interface ViewController : UIViewController<UIPuniconViewDelegate> {
     IBOutlet UIPuniconView* _puniconView;
+    IBOutlet UIImageView* _player;
 }
 
 

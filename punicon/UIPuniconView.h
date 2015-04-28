@@ -8,11 +8,25 @@
 
 #import <UIKit/UIKit.h>
 
+@class  UIPuniconView;
+
+@protocol UIPuniconViewDelegate <NSObject>
+
+@optional
+- (void)puniconViewDidChangeValue:(UIPuniconView *)puniconView;
+
+@end
+
 @interface UIPuniconView : UIView {
     CAShapeLayer* _sublayer1;
     CAShapeLayer* _sublayer2;
     CAShapeLayer* _sublayer3;
 }
+
+@property (nonatomic, readonly) CGFloat xValue;
+@property (nonatomic, readonly) CGFloat yValue;
+
+@property (nonatomic, assign) IBOutlet id <UIPuniconViewDelegate> delegate;
 
 @property CGPoint ptStartPoint;
 @property CGPoint ptEndPoint;
